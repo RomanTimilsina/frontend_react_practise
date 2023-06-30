@@ -35,7 +35,7 @@ const Share = () => {
       makeRequest.post('/posts', newPost)
     }),
     onSuccess: () => {
-      // Invalidate and refetch
+      // Invalidate and refetch 
       queryClient.invalidateQueries({ queryKey: ['posts'] })
     },
   })
@@ -81,7 +81,7 @@ const Share = () => {
           <div className="left">
             <input type="file" id="file" style={{display:"none"}} 
                       onChange={e => setFile(e.target.files[0])}
-                      value={file && file[0]}
+                      value={(file) ? file[0] : ''}
             />
             <label htmlFor="file">
               <div className="item">
