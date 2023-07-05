@@ -48,7 +48,7 @@ const queryClient = useQueryClient()
       <div className="container">
         <div className="user">
           <div className="userInfo">
-            <img src={post.profilePic} alt="" />
+            <img src={'/upload/'+post.profilePic} alt="" />
             <div className="details">
               <Link
                 to={`/profile/${post.userId}`}
@@ -86,3 +86,4 @@ const queryClient = useQueryClient()
 };
 
 export default Post;
+

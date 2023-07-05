@@ -10,12 +10,15 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Posts from "../../components/posts/Posts"
 import { makeRequest } from "../../axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
+import Update from "../../components/update/Update";
+
 
 const Profile = () => {
+  const [openUpdate, setOpenUpdate] = useState(false)
 
   const { currentUser } = useContext(AuthContext)
 
@@ -27,18 +30,44 @@ const Profile = () => {
   })
 );
 
+const { isLoading:rIsLoading, error:rIsError, data: relationshipData } = useQuery(["relationships"], () =>
+  makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
+    return res.data;
+  })
+);
+
+const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: (followed => {
+      if (followed) return makeRequest.delete('/relationships?userId='+ userId)
+      return makeRequest.post('/relationships',{userId})
+    }),
+    onSuccess: () => {
+      // Invalidate and refetch 
+      queryClient.invalidateQueries({ queryKey: ['relationships'] })
+    },
+  })
+
+const handleFollow = (e) => {
+  e.preventDefault()
+  mutation.mutate(relationshipData.includes(currentUser.id)) 
+}
+
+console.log(relationshipData)
 
   return (
-    isLoading ? 'loading' :
+    
     <div className="profile">
+      {isLoading ? 'loading' :<>
        <div className="images">
         <img
-          src={data.coverPic}
+          src={'/upload/'+data.coverPic}
           alt=""
           className="cover"
         />
         <img
-          src={data.profilePic}
+          src={'/upload/'+data.profilePic}
           alt=""
           className="profilePic"
         />
@@ -75,7 +104,11 @@ const Profile = () => {
               </div>
             </div>
             { currentUser.id == userId ?
-                        <button>Update</button> : <button>follow</button>
+                        <button onClick={() => setOpenUpdate(true)}>Update</button> : 
+                        <button onClick={handleFollow}>
+                          {
+                          rIsLoading ? '' : (relationshipData.includes(currentUser.id) ? 'following' : 'follow')
+                          }</button>
             }         
            </div>
           <div className="right">
@@ -83,8 +116,10 @@ const Profile = () => {
             <MoreVertIcon />
           </div>
         </div>
-      <Posts/>
+      <Posts userId={userId} />
       </div>
+      </>}
+      { openUpdate && <Update setOpenUpdate={setOpenUpdate} user={data}/> }
     </div>
   );
 };

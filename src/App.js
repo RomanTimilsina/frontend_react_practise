@@ -15,7 +15,7 @@ import Profile from "./pages/profile/Profile";
 import "./style.scss";
 import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
-import { AuthContext } from "./context/authContext";
+import { AuthContext, AuthContextProvider } from "./context/authContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 function App() {
@@ -29,6 +29,9 @@ function App() {
   const Layout = () => {
     return (
       <QueryClientProvider client={queryClient}>
+        <AuthContextProvider>
+        
+      
       <div className={`theme-${darkMode ? "dark" : "light"}`}>
         <Navbar />
         <div style={{ display: "flex" }}>
@@ -39,6 +42,7 @@ function App() {
           <RightBar />
         </div>
       </div>
+      </AuthContextProvider>
       </QueryClientProvider>
     );
   };
